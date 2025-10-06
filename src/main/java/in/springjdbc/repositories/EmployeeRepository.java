@@ -40,8 +40,29 @@ public class EmployeeRepository {
         String sql = "SELECT * FROM employees WHERE empid = :empid";
         Map<String, Object> map = new HashMap<>();
         map.put("empid", id);
-        return template.query(sql,map,new BeanPropertyRowMapper<Employee>(Employee.class)).getFirst();
+        return template.queryForObject(sql,map,(rs, rowNum) -> {
+            Employee e = new Employee();
+            e.setEmpid(rs.getInt("empid"));
+            e.setName(rs.getString("name"));
+            e.setDepartment(rs.getString("department"));
+            e.setSalary(rs.getDouble("salary"));
+            return e;
+        });
     }
 
+    public void update(double salary,int id){
+        String sql = "UPDATE employees SET salary = :salary WHERE empid = :empid";
+        Map<String, Object> map = new HashMap<>();
+        map.put("salary",salary);
+        map.put("empid",id);
+        System.out.println("Rows updated : "+template.update(sql, map));
+    }
+
+    public int delete(int id){
+        String sql = "DELETE FROM employees WHERE empid = :empid";
+        Map<String,Object> map = new HashMap<>();
+        map.put("empid",id);
+        return template.update(sql, map);
+    }
 
 }
